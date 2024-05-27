@@ -2,15 +2,18 @@ import http.server
 import socketserver
 import cgi
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2 import service_account
 
 # Google Sheets API setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)  # Ensure the correct path
+creds = service_account.Credentials.from_service_account_file("creds.json", scopes=scope)
 client = gspread.authorize(creds)
 
-# Update this to your actual Google Sheet name
-sheet = client.open("My Test Sheet").sheet1
+# Open the spreadsheet
+spreadsheet = client.open("info_log")
+
+# Access the worksheet by its name
+worksheet = spreadsheet.worksheet("info_log")
 
 PORT = 8000
 
