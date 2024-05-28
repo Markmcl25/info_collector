@@ -5,7 +5,7 @@ import gspread
 from google.oauth2 import service_account
 
 # Google Sheets API setup
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+scope = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
 creds = service_account.Credentials.from_service_account_file("creds.json", scopes=scope)
 client = gspread.authorize(creds)
 
@@ -21,21 +21,20 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         if self.path == '/submit':
             ctype, pdict = cgi.parse_header(self.headers['content-type'])
-        if ctype == 'multipart/form-data':
-            fields = cgi.parse_multipart(self.rfile, pdict)
-            name = fields.get('name')[0].decode('utf-8')
-            amount = fields.get('amount')[0].decode('utf-8')
-            date = fields.get('date')[0].decode('utf-8')
-            type_ = fields.get('type')[0].decode('utf-8')
-            on_bill = fields.get('on_bill')[0].decode('utf-8')
-            
-            # Append data to Google Sheet
-            client.login()
-            worksheet.append_row([name, amount, date, type_, on_bill])
-            
-            self.send_response(303)
-            self.send_header('Location', '/')
-            self.end_headers()
+            if ctype == 'multipart/form-data':
+                fields = cgi.parse_multipart(self.rfile, pdict)
+                name = fields.get('name')[0].decode('utf-8')
+                amount = fields.get('amount')[0].decode('utf-8')
+                date = fields.get('date')[0].decode('utf-8')
+                type_ = fields.get('type')[0].decode('utf-8')
+                on_bill = fields.get('on_bill')[0].decode('utf-8')
+
+                # Append data to Google Sheet
+                worksheet.append_row([name, amount, date, type_, on_bill])
+
+                self.send_response(303)
+                self.send_header('Location', '/')
+                self.end_headers()
 
 httpd = socketserver.TCPServer(("", PORT), Handler)
 
